@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#007bff">
+  <title>Gestor Financeiro</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+  <link rel="icon" href="{{ url_for('static', filename='icons/icon-192x192.png') }}" type="image/png">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-512x512.png') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body style="background-image: url('{{ url_for('static', filename=fundo_nome) }}'); background-size: cover;">
+<div id="loading-screen">
+  <div class="stellar-background"></div>
+  <div class="financial-particles"></div>
+  <div class="loader-content">
+    <div class="logo-container">
+      <svg class="finance-logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <path class="logo-outline" d="M100 20 L180 50 L180 150 L100 180 L20 150 L20 50 Z" fill="none" stroke="#fff" stroke-width="4"/>
+        <path class="logo-animated" d="M100 50 L140 70 L140 130 L100 150 L60 130 L60 70 Z" fill="none" stroke="#fff" stroke-width="4"/>
+        <path class="logo-inner" d="M100 80 L120 90 L120 110 L100 120 L80 110 L80 90 Z" fill="none" stroke="#fff" stroke-width="4"/>
+      </svg>
+      <div class="progress-ring">
+        <svg class="ring" viewBox="0 0 120 120">
+          <circle class="ring-circle" cx="60" cy="60" r="54" fill="none" stroke="#ffffff44" stroke-width="6"/>
+          <circle class="ring-progress" cx="60" cy="60" r="54" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-dasharray="339.292" stroke-dashoffset="339.292"/>
+        </svg>
+      </div>
+    </div>
+    <p class="nome-utilizador">Bem-vindo ao seu Gestor Financeiro, <strong>{{ nome }}</strong></p>
+    <p class="loading-message">A preparar o seu Gestor Pessoal...</p>
+  </div>
+  <div class="currency-animation">
+    <span>€</span>
+    <span>€</span>
+    <span>€</span>
+    <span>€</span>
+    <span>€</span>
+
+  </div>
+</div>
+
+<header style="background-color: {{ cor_header }};">
+    <div class="topo">
+      <div class="centro">
+        <h1 class="nome-utilizador" style="color: {{ cor_titulo }}">{{ titulo }}</h1>
+        <img src="{{ url_for('static', filename=logo_nome) }}" alt="Escolher logo da aplicação" class="logo-img">
+      </div>
+      <button id="btn-definicoes">⚙️</button>
+    </div>
+    <p class="nome-utilizador">Bem-vindo, {{ nome }}!</p>
+
+    <div id="data-hora"></div>
+
+    <div id="popup-definicoes" class="popup">
+      <div class="popup-conteudo">
+        <span id="fechar-popup">&times;</span>
+        <h1>Definições</h1>
+        <label for="tema">Tema:</label>
+        <select id="tema">
+          <option value="claro">Claro</option>
+          <option value="escuro">Escuro</option>
+        </select>
+        <hr>
+        <a href="/editar">
+  <button id="btn-editar" class="btn-editar">Editar Título e Logo</button>
+</a>
+        <hr>
+        <button id="btn-limpar" class="btn-limpar">
+          Limpar Dados
+        </button>
+        <hr>
+        <button id="install-button" style="display:none;">Instalar App</button>
+        <hr>
+    <a href="/logout" class="botao-vermelho">Logout</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="cartao" id="rendimentos">
+      <img src="{{ url_for('static', filename='images/renda.png') }}" alt="Rendimentos">
+      <h2>Rendimentos</h2>
+      <input type="number" id="rendimento" placeholder="Insira o valor dos rendimentos">
+      <button onclick="adicionarRendimento()">Adicionar Rendimento</button>
+      <ul id="lista-rendimentos"></ul>
+    </section>
+
+    <section class="cartao" id="despesas">
+      <img src="{{ url_for('static', filename='images/despesa.png') }}" alt="Despesas">
+      <h2>Despesas</h2>
+      <input type="number" id="despesa" placeholder="Insira o valor da despesa">
+      <button onclick="adicionarDespesa()">Adicionar Despesa</button>
+      <ul id="lista-despesas"></ul>
+    </section>
+
+    <section class="cartao" id="poupancas">
+      <img src="{{ url_for('static', filename='images/poupanca.png') }}" alt="Poupanças">
+      <h2>Poupanças</h2>
+      <p id="poupancas-valor">Poupanças: 0.00€</p>
+    </section>
+
+    <section class="cartao" id="grafico">
+      <h2>Resumo Mensal</h2>
+      <canvas id="grafico-financas" width="280" height="200"></canvas>
+      <button id="btn-download-pdf">Baixar Gráfico em PDF</button>
+    </section>
+
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

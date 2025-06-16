@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#007bff">
+  <title>Gestor Financeiro</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+  <link rel="icon" href="{{ url_for('static', filename='icons/icon-192x192.png') }}" type="image/png">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-512x512.png') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<div class="container mt-4">
+    <h2>Minha Agenda</h2>
+    
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    Adicionar Evento
+                </div>
+                <div class="card-body">
+                    <form id="eventoForm">
+                        <div class="form-group">
+                            <label>Título</label>
+                            <input type="text" class="form-control" id="titulo" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Descrição</label>
+                            <textarea class="form-control" id="descricao"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Data de Início</label>
+                            <input type="datetime-local" class="form-control" id="data_inicio" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Data de Fim (opcional)</label>
+                            <input type="datetime-local" class="form-control" id="data_fim">
+                        </div>
+                        <div class="form-group">
+                            <label>Localização</label>
+                            <input type="text" class="form-control" id="localizacao">
+                        </div>
+                        <div class="form-group" id="lembreteContainer" style="display: none;">
+                            <label>Data do Lembrete</label>
+                            <input type="datetime-local" class="form-control" id="data_lembrete">
+                        </div>
+                        <div class="form-group">
+                            <label>Cor do Evento</label>
+                            <input type="color" class="form-control" id="cor_evento" value="#3788d8">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div id="calendar"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para visualizar/editar eventos -->
+<div class="modal fade" id="eventoModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitulo"></h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Conteúdo dinâmico -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-danger" id="btnEliminar">Eliminar</button>
+                <button type="button" class="btn btn-primary" id="btnEditar">Editar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Incluir FullCalendar e outros scripts necessários -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/pt.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    // Inicializar calendário
+    var calendarEl = document.getElementById('calendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        locale: 'pt',
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        events: '/api/eventos',
+        eventClick: function(info) {
+            mostrarDetalhesEvento(info.event);
+        },
+        dateClick: function(info) {
+            // Preencher data ao clicar no calendário
+            $('#data_inicio').val(info.dateStr + 'T00:00');
+            $('#data_fim').val(info.dateStr + 'T23:59');
+        }
+    });
+    calendar.render();
+
+    // Mostrar/ocultar campo de lembrete
+    $('#lembrete').change(function() {
+        if($(this).is(':checked')) {
+            $('#lembreteContainer').show();
+        } else {
+            $('#lembreteContainer').hide();
+        }
+    });
+
+    // Formulário para adicionar evento
+$('#eventoForm').submit(function(e) {
+    e.preventDefault();
+    
+    const evento = {
+        titulo: $('#titulo').val(),
+        descricao: $('#descricao').val(),
+        data_inicio: $('#data_inicio').val(),
+        data_fim: $('#data_fim').val(),
+        localizacao: $('#localizacao').val(),
+        lembrete: $('#lembrete').is(':checked'),
+        data_lembrete: $('#lembrete').is(':checked') ? $('#data_lembrete').val() : null,
+        cor_evento: $('#cor_evento').val()
+    };
+
+    console.log("Enviando:", evento);  // Debug
+
+    $.ajax({
+        url: '/api/eventos',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(evento),
+        success: function(response) {
+            console.log("Resposta:", response);  // Debug
+            if(response.success) {
+                calendar.refetchEvents();
+                $('#eventoForm')[0].reset();
+                $('#lembreteContainer').hide();
+                alert('Evento adicionado com sucesso!');
+            }
+        },
+        error: function(xhr) {
+            console.error("Erro:", xhr.responseJSON);
+            alert('Erro ao adicionar evento: ' + 
+                 (xhr.responseJSON?.error || 'Erro desconhecido'));
+        }
+    });
+});
+
+    // Função para mostrar detalhes do evento
+    function mostrarDetalhesEvento(evento) {
+        $('#modalTitulo').text(evento.title);
+        
+        let html = `
+            <p><strong>Descrição:</strong> ${evento.extendedProps.descricao || 'Nenhuma'}</p>
+            <p><strong>Início:</strong> ${evento.start.toLocaleString()}</p>
+            ${evento.end ? `<p><strong>Fim:</strong> ${evento.end.toLocaleString()}</p>` : ''}
+            ${evento.extendedProps.localizacao ? `<p><strong>Localização:</strong> ${evento.extendedProps.localizacao}</p>` : ''}
+        `;
+        
+        $('#modalBody').html(html);
+        $('#btnEliminar').data('id', evento.id);
+        $('#btnEditar').data('id', evento.id);
+        $('#eventoModal').modal('show');
+    }
+
+    // Botões do modal
+    $('#btnEliminar').click(function() {
+        const id = $(this).data('id');
+        if(confirm('Tem certeza que deseja eliminar este evento?')) {
+            $.ajax({
+                url: `/api/eventos/${id}`,
+                method: 'DELETE',
+                success: function() {
+                    calendar.refetchEvents();
+                    $('#eventoModal').modal('hide');
+                }
+            });
+        }
+    });
+
+    $('#btnEditar').click(function() {
+        // Implementar lógica de edição conforme necessário
+        alert('Funcionalidade de edição será implementada aqui');
+    });
+});
+</script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

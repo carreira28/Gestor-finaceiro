@@ -1,0 +1,13 @@
+Abra Settings (Ctrl + ,) no VSCode
+Pesquise por Live Server: Settings: Port
+ipconfig
+
+
+CREATE TABLE editar (
+    id INT PRIMARY KEY,
+    titulo VARCHAR(255),
+    logo_nome VARCHAR(255)
+);
+
+INSERT INTO editar (titulo, logo_nome) 
+VALUES ('Gestor Financeiro do', 'images/logo.png');

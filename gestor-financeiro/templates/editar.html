@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#007bff" />
+    <title>Gestor Financeiro - Editar</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="icon" href="{{ url_for('static', filename='icons/icon-192x192.png') }}" type="image/png">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-512x512.png') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body style="background-image: url('{{ url_for('static', filename=fundo_nome) }}'); background-size: cover;">
+
+  <!-- Conteúdo Principal -->
+<main>
+    <div class="cartao">
+    <h2>Editar Título e Logo</h2>
+    <form action="/editar" method="POST" enctype="multipart/form-data">
+        <input type="text" name="titulo" id="titulo" value="{{ titulo }}" placeholder="Novo Título" required>
+        <input type="file" name="logo" id="logo" accept="image/*">
+        <input type="file" name="fundo" id="fundo" accept="image/*">
+        <button type="submit" class="btn">Salvar Alterações</button>
+        <br>
+        <br>
+        <a href="/" class="btn-limpar">Voltar</a>
+    </form>
+    </div>
+</main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
